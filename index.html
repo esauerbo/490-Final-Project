@@ -85,6 +85,16 @@ var div = d3.select("body")
     		.attr("class", "tooltip")               
     		.style("opacity", 0);
 
+const raceColorMap = {
+	W: "rgb(71, 121, 127)",
+	B: "rgb(131, 50, 85)",
+	A: "rgb(112, 89, 157)",
+	N: "rgb(65, 58, 124)",
+	H: "rgb(50, 65, 142)",
+	O: "rgb(80, 116, 184)",
+	N: "rgb(166, 35, 33)",
+} 
+
 // Load in my states data!
 d3.csv("https://gist.githubusercontent.com/michellechandra/0b2ce4923dc9b5809922/raw/a476b9098ba0244718b496697c5b350460d32f99/stateslived.csv", function(data) {
   console.log(data)
@@ -116,7 +126,6 @@ for (var i = 0; i < data.length; i++) {
 		}
 	}
 }
-
 		
 // Bind the data to the SVG and create one path per GeoJSON feature
 svg.selectAll("path")
@@ -141,7 +150,7 @@ svg.selectAll("path")
 });
 
 		 
-// Map the cities I have lived in!
+// Map the police shooting incidents 
 d3.csv('https://raw.githubusercontent.com/comalvirdi/490Files/main/fatal-police-shootings-data-Q.csv', function(data) {
 	console.log(data);
 svg.selectAll("circle")
@@ -152,9 +161,9 @@ svg.selectAll("circle")
 	
 	let proj;
 	if(d.longitude === "") {
-		console.log(d.name);
+	//	console.log(d.name);
 		proj = projection([-122.002236, 35.391556]);
-		console.log(proj)
+	//	console.log(proj)
 	} else {
 		proj = projection([d.longitude, d.latitude]);
 	}
@@ -166,9 +175,9 @@ svg.selectAll("circle")
 	})
 	.attr("cy", function(d) {
 		if(d.longitude === "") {
-		console.log(d.name);
+		//console.log(d.name);
 		proj = projection([-122.002236, 35.391556]);
-		console.log(proj)
+	//	console.log(proj)
 	} else {
 		proj = projection([d.longitude, d.latitude]);
 	}
@@ -177,7 +186,19 @@ svg.selectAll("circle")
 	.attr("r", function(d) {
 		return Math.sqrt(4);
 	})
-		.style("fill", "rgb(217,91,67)")	
+	/*.style("stroke", function(d) {
+		if(d.signs_of_mental_illness === "FALSE") {
+			return "rgb(255, 255, 255)";
+		} else return "rgb(0, 0, 0)";
+	}) */    
+		.style("fill", function(d) {
+			console.log(raceColorMap[d.race]);
+			if(raceColorMap[d.race] === undefined) {
+				return "rgb(166, 35, 33)";
+			} else {
+				return raceColorMap[d.race];
+			}
+		})
 		.style("opacity", 0.85)	
 
 	// Modification of custom tooltip code provided by Malcolm Maclean, "D3 Tips and Tricks" 
