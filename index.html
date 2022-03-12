@@ -66,12 +66,13 @@ var projection = d3.geo.albersUsa()
 var path = d3.geo.path()               // path generator that will convert GeoJSON to SVG paths
 		  	 .projection(projection);  // tell path generator to use albersUsa projection
 
+// "rgb(36, 139, 68)", "rgb(0, 141, 111)", "rgb(0, 139, 150)",  "rgb(0, 134, 177)",  "rgb(0, 125, 187)",  "rgb(95, 113, 180)", "rgb(116, 109, 181)","rgb(136, 103, 178)" 
 		
 // Define linear scale for output
 var color = d3.scale.linear()
 			  .range(["rgb(213,222,217)","rgb(69,173,168)","rgb(84,36,55)","rgb(217,91,67)"]);
 
-var legendText = ["Cities Lived", "States Lived", "States Visited", "Nada"];
+var legendText = ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022"];
 
 //Create SVG element and append map to the SVG
 var svg = d3.select("body")
@@ -127,22 +128,22 @@ svg.selectAll("path")
 	.style("stroke", "#fff")
 	.style("stroke-width", "1")
 	.style("fill", function(d) {
-
+		return "rgb(213,222,217)"
 	// Get data value
-	var value = d.properties.visited;
+	// var value = d.properties.visited;
 
-	if (value) {
-	//If value exists…
-	return color(value);
-	} else {
-	//If value is undefined…
-	return "rgb(213,222,217)";
-	}
+	// if (value) {
+	// //If value exists…
+	// return color(value);
+	// } else {
+	// //If value is undefined…
+	// return "rgb(213,222,217)";
+	// }
 });
 
 		 
 // Map the cities I have lived in!
-d3.csv('https://raw.githubusercontent.com/comalvirdi/490Files/main/fatal-police-shootings-data-Q.csv', function(data) {
+d3.csv('https://raw.githubusercontent.com/comalvirdi/490Files/main/fatal-police-shootings-data.csv', function(data) {
 	console.log(data);
 svg.selectAll("circle")
 	.data(data)
@@ -152,9 +153,7 @@ svg.selectAll("circle")
 	
 	let proj;
 	if(d.longitude === "") {
-		console.log(d.name);
 		proj = projection([-122.002236, 35.391556]);
-		console.log(proj)
 	} else {
 		proj = projection([d.longitude, d.latitude]);
 	}
@@ -166,9 +165,7 @@ svg.selectAll("circle")
 	})
 	.attr("cy", function(d) {
 		if(d.longitude === "") {
-		console.log(d.name);
 		proj = projection([-122.002236, 35.391556]);
-		console.log(proj)
 	} else {
 		proj = projection([d.longitude, d.latitude]);
 	}
@@ -177,8 +174,39 @@ svg.selectAll("circle")
 	.attr("r", function(d) {
 		return Math.sqrt(4);
 	})
-		.style("fill", "rgb(217,91,67)")	
-		.style("opacity", 0.85)	
+	.style("fill", function(d) {
+		fullYear = d.date
+		year = fullYear.slice(0,4)
+		console.log(year);
+		
+		if (year == "2015") {
+			return "rgb(36, 139, 68)"
+
+		}else if(year == "2016") {
+			return "rgb(0, 141, 111)"
+
+		}else if(year == "2017") {
+			return "rgb(0, 139, 150)"
+
+		}else if(year == "2018") {
+			return "rgb(0, 134, 177)"
+
+		}else if(year == "2019") {
+			return "rgb(0, 125, 187)"
+
+		}else if (year == "2020") {
+			return "rgb(95, 113, 180)"
+
+		}else if (year == "2021") {
+			return "rgb(116, 109, 181)"
+
+		}else if (year == "2022") {
+			return "rgb(136, 103, 178)"
+
+		}
+		
+	})	
+		.style("opacity", 0.50)	
 
 	// Modification of custom tooltip code provided by Malcolm Maclean, "D3 Tips and Tricks" 
 	// http://www.d3noob.org/2013/01/adding-tooltips-to-d3js-graph.html
