@@ -65,14 +65,13 @@ var projection = d3.geo.albersUsa()
 // Define path generator
 var path = d3.geo.path()               // path generator that will convert GeoJSON to SVG paths
 		  	 .projection(projection);  // tell path generator to use albersUsa projection
-
-// "rgb(36, 139, 68)", "rgb(0, 141, 111)", "rgb(0, 139, 150)",  "rgb(0, 134, 177)",  "rgb(0, 125, 187)",  "rgb(95, 113, 180)", "rgb(116, 109, 181)","rgb(136, 103, 178)" 
 		
-// Define linear scale for output
+// Define linear scale for based on high or low median income
 var color = d3.scale.linear()
-			  .range(["rgb(213,222,217)","rgb(69,173,168)","rgb(84,36,55)","rgb(217,91,67)"]);
+							.range(["yellow", "red"])
+			  				.domain([39000,83000]);
 
-var legendText = ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022"];
+var legendText = ["Low income", "High income"];
 
 //Create SVG element and append map to the SVG
 var svg = d3.select("body")
@@ -87,21 +86,18 @@ var div = d3.select("body")
     		.style("opacity", 0);
 
 // Load in my states data!
-d3.csv("https://gist.githubusercontent.com/michellechandra/0b2ce4923dc9b5809922/raw/a476b9098ba0244718b496697c5b350460d32f99/stateslived.csv", function(data) {
-  console.log(data)
-color.domain([0,1,2,3]); // setting the range of the input data
+d3.csv('https://raw.githubusercontent.com/esauerbo/490-Final-Project/main/avgMedIncomePerState.csv', function(data) {
 
 // Load GeoJSON data and merge with states data
 d3.json("https://gist.githubusercontent.com/michellechandra/0b2ce4923dc9b5809922/raw/a476b9098ba0244718b496697c5b350460d32f99/us-states.json", function(json) {
-console.log(data);
 // Loop through each state data value in the .csv file
 for (var i = 0; i < data.length; i++) {
 
 	// Grab State Name
-	var dataState = data[i].state;
+	var dataState = data[i].State;
 
 	// Grab data value 
-	var dataValue = data[i].visited;
+	var dataValue = data[i].avgMedIncome ;
 
 	// Find the corresponding state inside the GeoJSON
 	for (var j = 0; j < json.features.length; j++)  {
@@ -110,7 +106,7 @@ for (var i = 0; i < data.length; i++) {
 		if (dataState == jsonState) {
 
 		// Copy the data value into the JSON
-		json.features[j].properties.visited = dataValue; 
+		json.features[j].properties.avgMedIncome  = dataValue; 
 
 		// Stop looking through the JSON
 		break;
@@ -128,23 +124,19 @@ svg.selectAll("path")
 	.style("stroke", "#fff")
 	.style("stroke-width", "1")
 	.style("fill", function(d) {
-		return "rgb(213,222,217)"
-	// Get data value
-	// var value = d.properties.visited;
 
-	// if (value) {
-	// //If value exists…
-	// return color(value);
-	// } else {
-	// //If value is undefined…
-	// return "rgb(213,222,217)";
-	// }
+	 var value = d.properties.avgMedIncome ;
+
+	 if (value) {
+	 return color(value);
+	 } else {
+	 return "rgb(213,222,217)";
+	 }
 });
 
 		 
 // Map the cities I have lived in!
 d3.csv('https://raw.githubusercontent.com/comalvirdi/490Files/main/fatal-police-shootings-data.csv', function(data) {
-	console.log(data);
 svg.selectAll("circle")
 	.data(data)
 	.enter()
@@ -157,10 +149,6 @@ svg.selectAll("circle")
 	} else {
 		proj = projection([d.longitude, d.latitude]);
 	}
-		// console.log("longitude: ", projection([d.longitude, d.latitude]));
-		// console.log('data: ', d.name)
-
-	
 		return proj[0];
 	})
 	.attr("cy", function(d) {
@@ -177,7 +165,6 @@ svg.selectAll("circle")
 	.style("fill", function(d) {
 		fullYear = d.date
 		year = fullYear.slice(0,4)
-		console.log(year);
 		
 		if (year == "2015") {
 			return "rgb(36, 139, 68)"
