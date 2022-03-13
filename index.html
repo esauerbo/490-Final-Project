@@ -32,6 +32,18 @@ body {
 /* Legend Position Style */
 .legend {
 	position:absolute;
+	left:0px;
+	top:20px;
+}
+
+.legend2 {
+	position:absolute;
+	left:0px;
+	top:90px;
+}
+
+#legends {
+	position:absolute;
 	left:800px;
 	top:350px;
 }
@@ -72,6 +84,39 @@ var color = d3.scale.linear()
 			  				.domain([39000,61000,83000]);
 
 var legendText = ["Low Income (>= $39000)", "Medium Income (>= $61000)", "High Income (>= $83000)"];
+var circleLegendText = ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022"]
+var circleColor = ["rgb(36, 139, 68)", "rgb(0, 141, 111)", "rgb(0, 139, 150)", "rgb(0, 134, 177)", "rgb(0, 125, 187)", "rgb(95, 113, 180)", "rgb(116, 109, 181)", "rgb(136, 103, 178)"]
+
+var circleColor1 = function(d) {
+		year = d;
+		
+		if (year == "2015") {
+			return "rgb(36, 139, 68)"
+
+		}else if(year == "2016") {
+			return "rgb(0, 141, 111)"
+
+		}else if(year == "2017") {
+			return "rgb(0, 139, 150)"
+
+		}else if(year == "2018") {
+			return "rgb(0, 134, 177)"
+
+		}else if(year == "2019") {
+			return "rgb(0, 125, 187)"
+
+		}else if (year == "2020") {
+			return "rgb(95, 113, 180)"
+
+		}else if (year == "2021") {
+			return "rgb(116, 109, 181)"
+
+		}else if (year == "2022") {
+			return "rgb(136, 103, 178)"
+
+		}
+		
+	};
 
 //Create SVG element and append map to the SVG
 var svg = d3.select("body")
@@ -215,7 +260,11 @@ svg.selectAll("circle")
 });  
         
 // Modified Legend Code from Mike Bostock: http://bl.ocks.org/mbostock/3888852
-var legend = d3.select("body").append("svg")
+var legends = d3.select("body").append("div")
+	.attr("id", "legends")
+	.append("text").text("Legend");
+
+var legend = d3.select("#legends").append("svg")
       			.attr("class", "legend")
      			.attr("width", 200)
     			.attr("height", 200)
@@ -237,7 +286,29 @@ var legend = d3.select("body").append("svg")
       	  .attr("dy", ".35em")
       	  .text(function(d) { return d; });
 
-	console.log(color.domain());
+var legendCirc = d3.select("#legends").append("svg")
+      			.attr("class", "legend2")
+     			.attr("width", 200)
+    			.attr("height", 200)
+   				.selectAll("g")
+   				.data(circleLegendText)
+   				.enter()
+   				.append("g")
+     			.attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+  	legendCirc.append("circle")
+		.attr("r", 5)
+		.attr("cx", 10)
+		.attr("cy", 9)
+		.style("fill", circleColor1);
+
+  	legendCirc.append("text")
+  		  .data(circleLegendText)
+      	  .attr("x", 24)
+      	  .attr("y", 9)
+      	  .attr("dy", ".35em")
+      	  .text(function(d) { return d; });
+
 	});
 
 });
