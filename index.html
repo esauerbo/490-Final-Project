@@ -32,6 +32,18 @@ body {
 /* Legend Position Style */
 .legend {
 	position:absolute;
+	left:0px;
+	top:20px;
+}
+
+.legend2 {
+	position:absolute;
+	left:0px;
+	top:90px;
+}
+
+#legends {
+	position:absolute;
 	left:800px;
 	top:350px;
 }
@@ -69,9 +81,9 @@ var path = d3.geo.path()               // path generator that will convert GeoJS
 // Define linear scale for based on high or low median income
 var color = d3.scale.linear()
 							.range(["white", "rgb(90, 213, 237)"])
-			  				.domain([39000,83000]);
+			  				.domain([39000, 61000, 83000]);
 console.log(color(40000));
-var legendText = ["High income", "Low income"];
+var legendText = ["Low Income (>= $39000)", "Medium Income (>= $61000)", "High Income (>= $83000)"];
 
 const raceColorMap = {
 	W: "rgb(71, 121, 127)",
@@ -82,6 +94,8 @@ const raceColorMap = {
 	O: "rgb(80, 116, 184)",
 	N: "rgb(166, 35, 33)",
 };
+
+var raceText = ['White', "Black", "Asian", "Native American", "Hispanic", "Other"];
 
 //Create SVG element and append map to the SVG
 var svg = d3.select("body")
@@ -201,12 +215,17 @@ svg.selectAll("circle")
 });  
         
 // Modified Legend Code from Mike Bostock: http://bl.ocks.org/mbostock/3888852
-var legend = d3.select("body").append("svg")
+
+var legends = d3.select("body").append("div")
+	.attr("id", "legends")
+	.append("text").text("Legend");
+
+var legend = d3.select("#legends").append("svg")
       			.attr("class", "legend")
-     			.attr("width", 140)
+     			.attr("width", 200)
     			.attr("height", 200)
    				.selectAll("g")
-   				.data(color.domain().slice().reverse())
+   				.data(color.domain())
    				.enter()
    				.append("g")
      			.attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
@@ -222,6 +241,31 @@ var legend = d3.select("body").append("svg")
       	  .attr("y", 9)
       	  .attr("dy", ".35em")
       	  .text(function(d) { return d; });
+
+			var legendCirc = d3.select("#legends").append("svg")
+      			.attr("class", "legend2")
+     			.attr("width", 200)
+    			.attr("height", 200)
+   				.selectAll("g")
+   				.data(Object.keys(raceColorMap))
+   				.enter()
+   				.append("g")
+     			.attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+  	legendCirc.append("circle")
+		.attr("r", 5)
+		.attr("cx", 10)
+		.attr("cy", 9)
+		.style("fill", function(d) {return raceColorMap[d]});
+
+  	legendCirc.append("text")
+  		  .data(raceText)
+      	  .attr("x", 24)
+      	  .attr("y", 9)
+      	  .attr("dy", ".35em")
+      	  .text(function(d) { return d; });
+
+
 	});
 
 });
