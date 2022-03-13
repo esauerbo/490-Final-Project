@@ -70,8 +70,8 @@ var path = d3.geo.path()               // path generator that will convert GeoJS
 var color = d3.scale.linear()
 							.range(["white", "rgb(90, 213, 237)"])
 			  				.domain([39000,83000]);
-
-var legendText = ["Low income", "High income"];
+console.log(color(40000));
+var legendText = ["High income", "Low income"];
 
 const raceColorMap = {
 	W: "rgb(71, 121, 127)",
