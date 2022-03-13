@@ -68,10 +68,10 @@ var path = d3.geo.path()               // path generator that will convert GeoJS
 		
 // Define linear scale for based on high or low median income
 var color = d3.scale.linear()
-							.range(["yellow", "red"])
-			  				.domain([39000,83000]);
+							.range(["yellow", "orange", "red"])
+			  				.domain([39000,61000,83000]);
 
-var legendText = ["Low income", "High income"];
+var legendText = ["Low Income (>= $39000)", "Medium Income (>= $61000)", "High Income (>= $83000)"];
 
 //Create SVG element and append map to the SVG
 var svg = d3.select("body")
@@ -217,10 +217,10 @@ svg.selectAll("circle")
 // Modified Legend Code from Mike Bostock: http://bl.ocks.org/mbostock/3888852
 var legend = d3.select("body").append("svg")
       			.attr("class", "legend")
-     			.attr("width", 140)
+     			.attr("width", 200)
     			.attr("height", 200)
    				.selectAll("g")
-   				.data(color.domain().slice().reverse())
+   				.data(color.domain())
    				.enter()
    				.append("g")
      			.attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
@@ -236,6 +236,8 @@ var legend = d3.select("body").append("svg")
       	  .attr("y", 9)
       	  .attr("dy", ".35em")
       	  .text(function(d) { return d; });
+
+	console.log(color.domain());
 	});
 
 });
