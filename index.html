@@ -68,10 +68,20 @@ var path = d3.geo.path()               // path generator that will convert GeoJS
 		
 // Define linear scale for based on high or low median income
 var color = d3.scale.linear()
-							.range(["yellow", "red"])
+							.range(["white", "rgb(90, 213, 237)"])
 			  				.domain([39000,83000]);
 
 var legendText = ["Low income", "High income"];
+
+const raceColorMap = {
+	W: "rgb(71, 121, 127)",
+	B: "rgb(131, 50, 85)",
+	A: "rgb(112, 89, 157)",
+	N: "rgb(65, 58, 124)",
+	H: "rgb(50, 65, 142)",
+	O: "rgb(80, 116, 184)",
+	N: "rgb(166, 35, 33)",
+};
 
 //Create SVG element and append map to the SVG
 var svg = d3.select("body")
@@ -163,37 +173,13 @@ svg.selectAll("circle")
 		return Math.sqrt(4);
 	})
 	.style("fill", function(d) {
-		fullYear = d.date
-		year = fullYear.slice(0,4)
-		
-		if (year == "2015") {
-			return "rgb(36, 139, 68)"
-
-		}else if(year == "2016") {
-			return "rgb(0, 141, 111)"
-
-		}else if(year == "2017") {
-			return "rgb(0, 139, 150)"
-
-		}else if(year == "2018") {
-			return "rgb(0, 134, 177)"
-
-		}else if(year == "2019") {
-			return "rgb(0, 125, 187)"
-
-		}else if (year == "2020") {
-			return "rgb(95, 113, 180)"
-
-		}else if (year == "2021") {
-			return "rgb(116, 109, 181)"
-
-		}else if (year == "2022") {
-			return "rgb(136, 103, 178)"
-
-		}
-		
-	})	
-		.style("opacity", 0.50)	
+			if(raceColorMap[d.race] === undefined) {
+				return "rgb(166, 35, 33)";
+			} else {
+				return raceColorMap[d.race];
+			}
+		})
+		.style("opacity", 0.5)	
 
 	// Modification of custom tooltip code provided by Malcolm Maclean, "D3 Tips and Tricks" 
 	// http://www.d3noob.org/2013/01/adding-tooltips-to-d3js-graph.html
