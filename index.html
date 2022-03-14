@@ -179,6 +179,34 @@ svg.selectAll("path")
 	 }
 });
 
+var tooltip = d3.select("body")
+    .append("div")
+      .style("opacity", 50)
+      .attr("class", "tooltip")
+      .style("font-size", "12px")
+var mouseover = function(d) {
+    tooltip
+      .transition()
+      .duration(200)
+      .style("opacity", 50)
+    tooltip
+        .html(d.name + " " + d.date) // + d.Prior_disorder + "<br>" + "HR: " +  d.HR)
+        .style("left", (d3.mouse(this)[0]+30) + "px")
+        .style("top", (d3.mouse(this)[1]+30) + "px")
+		.style("min-height", "100px")
+	  	.style("min-width", "50px")
+  }
+  var mousemove = function(d) {
+    tooltip
+      .style("left", (d3.mouse(this)[0]+30) + "px")
+      .style("top", (d3.mouse(this)[1]+30) + "px")
+  }
+  var mouseleave = function(d) {
+    tooltip
+      .transition()
+      .duration(200)
+      .style("opacity", 0)
+  }
 		 
 // Map the cities I have lived in!
 d3.csv('https://raw.githubusercontent.com/comalvirdi/490Files/main/fatal-police-shootings-data.csv', function(data) {
@@ -239,24 +267,27 @@ svg.selectAll("circle")
 		
 	})	
 		.style("opacity", 0.50)	
+		.on("mouseover", mouseover)
+      	.on("mousemove", mousemove)
+     	 .on("mouseleave", mouseleave)
 
-	// Modification of custom tooltip code provided by Malcolm Maclean, "D3 Tips and Tricks" 
-	// http://www.d3noob.org/2013/01/adding-tooltips-to-d3js-graph.html
-	.on("mouseover", function(d) {      
-    	div.transition()        
-      	   .duration(200)      
-           .style("opacity", .9);      
-           div.text(d.name)
-           .style("left", (d3.event.pageX) + "px")     
-           .style("top", (d3.event.pageY - 28) + "px");    
-	})   
+	// // Modification of custom tooltip code provided by Malcolm Maclean, "D3 Tips and Tricks" 
+	// // http://www.d3noob.org/2013/01/adding-tooltips-to-d3js-graph.html
+	// .on("mouseover", function(d) {      
+    // 	div.transition()        
+    //   	   .duration(200)      
+    //        .style("opacity", .9)
+    //        div.text(d.name + " " + d.date)
+    //        .style("left", (d3.event.pageX) + "px")     
+    //        .style("top", (d3.event.pageY - 28) + "px");    
+	// })   
 
-    // fade out tooltip on mouse out               
-    .on("mouseout", function(d) {       
-        div.transition()        
-           .duration(500)      
-           .style("opacity", 0);   
-    });
+    // // fade out tooltip on mouse out               
+    // .on("mouseout", function(d) {       
+    //     div.transition()        
+    //        .duration(500)      
+    //        .style("opacity", 0);   
+    // });
 });  
         
 // Modified Legend Code from Mike Bostock: http://bl.ocks.org/mbostock/3888852
