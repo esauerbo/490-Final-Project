@@ -112,8 +112,19 @@
 		var legendText = ["Low Income (>= $39000)", "Medium Income (>= $61000)", "High Income (>= $83000)"];
 		var circleLegendText = ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022"]
 		var circleColor = ["rgb(36, 139, 68)", "rgb(0, 141, 111)", "rgb(0, 139, 150)", "rgb(0, 134, 177)", "rgb(0, 125, 187)", "rgb(95, 113, 180)", "rgb(116, 109, 181)", "rgb(136, 103, 178)"]
+		
+		const yearColorMap = {
+			'2015': "rgb(36, 139, 68)",
+			'2016': "rgb(0, 141, 111)",
+			'2017': "rgb(0, 139, 150)",
+			'2018': "rgb(0, 134, 177)",
+			'2019': "rgb(0, 125, 187)",
+			'2020': "rgb(95, 113, 180)",
+			'2021': "rgb(116, 109, 181)", 
+			'2022' : "rgb(136, 103, 178)"
+		};
 
-		let selectedYear;
+		let selectedYear = 2015;
 
 		var form = document.querySelector('form');
 		form.addEventListener('change', function () {
@@ -124,38 +135,26 @@
 					break;
 				}
 			}
-			console.log(selectedYear);
+			const circles = document.querySelectorAll('circle');
+			for (const circle of circles) {
+				if (circle.__data__.date) {
+					if (circle.__data__.date.slice(0, 4) != selectedYear) {
+						circle.style.opacity = 0;
+						//console.log(circle.style);
+					} else {
+						circle.style.opacity = 0.5;
+					}
+				}
+
+				//console.log(circle.__data__.date.slice(0,4));
+			}
+			//console.log(circles);
+
 		});
 
 		var circleColor1 = function (d) {
-			year = d;
-
-			if (year == "2015") {
-				return "rgb(36, 139, 68)"
-
-			} else if (year == "2016") {
-				return "rgb(0, 141, 111)"
-
-			} else if (year == "2017") {
-				return "rgb(0, 139, 150)"
-
-			} else if (year == "2018") {
-				return "rgb(0, 134, 177)"
-
-			} else if (year == "2019") {
-				return "rgb(0, 125, 187)"
-
-			} else if (year == "2020") {
-				return "rgb(95, 113, 180)"
-
-			} else if (year == "2021") {
-				return "rgb(116, 109, 181)"
-
-			} else if (year == "2022") {
-				return "rgb(136, 103, 178)"
-
-			}
-
+			let year = d;
+			return yearColorMap[year];
 		};
 
 		//Create SVG element and append map to the SVG
@@ -278,39 +277,11 @@
 						.style("fill", function (d) {
 							fullYear = d.date
 							year = fullYear.slice(0, 4)
-
-							if (year == "2015") {
-								return "rgb(36, 139, 68)"
-
-							} else if (year == "2016") {
-								return "rgb(0, 141, 111)"
-
-							} else if (year == "2017") {
-								return "rgb(0, 139, 150)"
-
-							} else if (year == "2018") {
-								return "rgb(0, 134, 177)"
-
-							} else if (year == "2019") {
-								return "rgb(0, 125, 187)"
-
-							} else if (year == "2020") {
-								return "rgb(95, 113, 180)"
-
-							} else if (year == "2021") {
-								return "rgb(116, 109, 181)"
-
-							} else if (year == "2022") {
-								return "rgb(136, 103, 178)"
-
-							}
-
+							{return yearColorMap[year]};
 						})
 						.style("opacity", function (d) {
 							fullYear = d.date
 							year = fullYear.slice(0, 4)
-							console.log(year);
-
 							if (year == selectedYear) {
 								return 0.50
 
@@ -322,24 +293,6 @@
 						.on("mouseover", mouseover)
 						.on("mousemove", mousemove)
 						.on("mouseleave", mouseleave)
-
-					// // Modification of custom tooltip code provided by Malcolm Maclean, "D3 Tips and Tricks" 
-					// // http://www.d3noob.org/2013/01/adding-tooltips-to-d3js-graph.html
-					// .on("mouseover", function(d) {      
-					// 	div.transition()        
-					//   	   .duration(200)      
-					//        .style("opacity", .9)
-					//        div.text(d.name + " " + d.date)
-					//        .style("left", (d3.event.pageX) + "px")     
-					//        .style("top", (d3.event.pageY - 28) + "px");    
-					// })   
-
-					// // fade out tooltip on mouse out               
-					// .on("mouseout", function(d) {       
-					//     div.transition()        
-					//        .duration(500)      
-					//        .style("opacity", 0);   
-					// });
 				});
 
 				// Modified Legend Code from Mike Bostock: http://bl.ocks.org/mbostock/3888852
