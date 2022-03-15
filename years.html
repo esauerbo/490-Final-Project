@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<script src="https://d3js.org/d3.v3.min.js"></script>
+	<style type="text/css">
+		/* On mouse hover, lighten state color */
+		path:hover {
+			fill-opacity: .7;
+		}
+
+		/* Style for Custom Tooltip */
+		div.tooltip {
+			position: absolute;
+			text-align: center;
+			width: 60px;
+			height: 28px;
+			padding: 2px;
+			font: 12px sans-serif;
+			background: white;
+			border: 0px;
+			border-radius: 8px;
+			pointer-events: none;
+		}
+
+		/* Legend Font Style */
+		body {
+
+			font: 11px sans-serif;
+		}
+
+		/* Legend Position Style */
+		.legend {
+			position: absolute;
+			left: 0px;
+			top: 20px;
+		}
+
+		.legend2 {
+			position: absolute;
+			left: 0px;
+			top: 90px;
+		}
+
+		#legends {
+			position: absolute;
+			left: 800px;
+			top: 350px;
+		}
+
+		#years {
+			position: absolute;
+			left: 900px;
+			top: 100px;
+		}
+	</style>
+</head>
+
+<body>
+	<form id="years">
+		<h1> Select Year </h1>
+		<input type="radio" name="selectedYear" checked value="2015">
+		<label for="2015">2015</label><br>
+		<input type="radio" name="selectedYear" value="2016">
+		<label for="2016">2016</label><br>
+		<input type="radio" name="selectedYear" value="2017">
+		<label for="2017">2017</label><br>
+		<input type="radio" name="selectedYear" value="2018">
+		<label for="2018">2018</label><br>
+		<input type="radio" name="selectedYear" value="2019">
+		<label for="2019">2019</label><br>
+		<input type="radio" name="selectedYear" value="2020">
+		<label for="2020">2020</label><br>
+		<input type="radio" name="selectedYear" value="2021">
+		<label for="2021">2021</label><br>
+		<input type="radio" name="selectedYear" value="2022">
+		<label for="2022">2022</label><br>
+	</form>
+	<script type="text/javascript">
+
+		/*  This visualization was made possible by modifying code provided by:
+		
+		Scott Murray, Choropleth example from "Interactive Data Visualization for the Web" 
+		https://github.com/alignedleft/d3-book/blob/master/chapter_12/05_choropleth.html   
+				
+		Malcolm Maclean, tooltips example tutorial
+		http://www.d3noob.org/2013/01/adding-tooltips-to-d3js-graph.html
+		
+		Mike Bostock, Pie Chart Legend
+		http://bl.ocks.org/mbostock/3888852  */
+
+
+		//Width and height of map
+		var width = 960;
+		var height = 500;
+
+		// D3 Projection
+		var projection = d3.geo.albersUsa()
+			.translate([width / 2, height / 2])    // translate to center of screen
+			.scale([1000]);          // scale things down so see entire US
+
+		// Define path generator
+		var path = d3.geo.path()               // path generator that will convert GeoJSON to SVG paths
+			.projection(projection);  // tell path generator to use albersUsa projection
+
+		// Define linear scale for based on high or low median income
+		var color = d3.scale.linear()
+			.range(["yellow", "orange", "red"])
+			.domain([39000, 61000, 83000]);
+
+		var legendText = ["Low Income (>= $39000)", "Medium Income (>= $61000)", "High Income (>= $83000)"];
+		var circleLegendText = ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022"]
+		var circleColor = ["rgb(36, 139, 68)", "rgb(0, 141, 111)", "rgb(0, 139, 150)", "rgb(0, 134, 177)", "rgb(0, 125, 187)", "rgb(95, 113, 180)", "rgb(116, 109, 181)", "rgb(136, 103, 178)"]
+		
+		const yearColorMap = {
+			'2015': "rgb(36, 139, 68)",
+			'2016': "rgb(0, 141, 111)",
+			'2017': "rgb(0, 139, 150)",
+			'2018': "rgb(0, 134, 177)",
+			'2019': "rgb(0, 125, 187)",
+			'2020': "rgb(95, 113, 180)",
+			'2021': "rgb(116, 109, 181)", 
+			'2022' : "rgb(136, 103, 178)"
+		};
+
+		let selectedYear = 2015;
+
+		var form = document.querySelector('form');
+		form.addEventListener('change', function () {
+			const radioButtons = document.querySelectorAll('input[name="selectedYear"]');
+			for (const radioButton of radioButtons) {
+				if (radioButton.checked) {
+					selectedYear = radioButton.value;
+					break;
+				}
+			}
+			const circles = document.querySelectorAll('circle');
+			for (const circle of circles) {
+				if (circle.__data__.date) {
+					if (circle.__data__.date.slice(0, 4) != selectedYear) {
+						circle.style.opacity = 0;
+						//console.log(circle.style);
+					} else {
+						circle.style.opacity = 0.5;
+					}
+				}
+
+				//console.log(circle.__data__.date.slice(0,4));
+			}
+			//console.log(circles);
+
+		});
+
+		var circleColor1 = function (d) {
+			let year = d;
+			return yearColorMap[year];
+		};
+
+		//Create SVG element and append map to the SVG
+		var svg = d3.select("body")
+			.append("svg")
+			.attr("width", width)
+			.attr("height", height);
+
+		// Append Div for tooltip to SVG
+		var div = d3.select("body")
+			.append("div")
+			.attr("class", "tooltip")
+			.style("opacity", 0);
+
+		// Load in my states data!
+		d3.csv('https://raw.githubusercontent.com/esauerbo/490-Final-Project/main/avgMedIncomePerState.csv', function (data) {
+
+			// Load GeoJSON data and merge with states data
+			d3.json("https://gist.githubusercontent.com/michellechandra/0b2ce4923dc9b5809922/raw/a476b9098ba0244718b496697c5b350460d32f99/us-states.json", function (json) {
+				// Loop through each state data value in the .csv file
+				for (var i = 0; i < data.length; i++) {
+
+					// Grab State Name
+					var dataState = data[i].State;
+
+					// Grab data value 
+					var dataValue = data[i].avgMedIncome;
+
+					// Find the corresponding state inside the GeoJSON
+					for (var j = 0; j < json.features.length; j++) {
+						var jsonState = json.features[j].properties.name;
+
+						if (dataState == jsonState) {
+
+							// Copy the data value into the JSON
+							json.features[j].properties.avgMedIncome = dataValue;
+
+							// Stop looking through the JSON
+							break;
+						}
+					}
+				}
+
+
+				// Bind the data to the SVG and create one path per GeoJSON feature
+				svg.selectAll("path")
+					.data(json.features)
+					.enter()
+					.append("path")
+					.attr("d", path)
+					.style("stroke", "#fff")
+					.style("stroke-width", "1")
+					.style("fill", function (d) {
+
+						var value = d.properties.avgMedIncome;
+
+						if (value) {
+							return color(value);
+						} else {
+							return "rgb(213,222,217)";
+						}
+					});
+
+				var tooltip = d3.select("body")
+					.append("div")
+					.style("opacity", 50)
+					.attr("class", "tooltip")
+					.style("font-size", "12px")
+				var mouseover = function (d) {
+					tooltip
+						.transition()
+						.duration(200)
+						.style("opacity", 50)
+					tooltip
+						.html(d.name + " " + d.date) // + d.Prior_disorder + "<br>" + "HR: " +  d.HR)
+						.style("left", (d3.mouse(this)[0] + 30) + "px")
+						.style("top", (d3.mouse(this)[1] + 30) + "px")
+						.style("min-height", "100px")
+						.style("min-width", "50px")
+				}
+				var mousemove = function (d) {
+					tooltip
+						.style("left", (d3.mouse(this)[0] + 30) + "px")
+						.style("top", (d3.mouse(this)[1] + 30) + "px")
+				}
+				var mouseleave = function (d) {
+					tooltip
+						.transition()
+						.duration(200)
+						.style("opacity", 0)
+				}
+
+				// Map the cities I have lived in!
+				d3.csv('https://raw.githubusercontent.com/comalvirdi/490Files/main/fatal-police-shootings-data.csv', function (data) {
+					svg.selectAll("circle")
+						.data(data)
+						.enter()
+						.append("circle")
+						.attr("cx", function (d) {
+
+							let proj;
+							if (d.longitude === "") {
+								proj = projection([-122.002236, 35.391556]);
+							} else {
+								proj = projection([d.longitude, d.latitude]);
+							}
+							return proj[0];
+						})
+						.attr("cy", function (d) {
+							if (d.longitude === "") {
+								proj = projection([-122.002236, 35.391556]);
+							} else {
+								proj = projection([d.longitude, d.latitude]);
+							}
+							return proj[1]
+						})
+						.attr("r", function (d) {
+							return Math.sqrt(4);
+						})
+						.style("fill", function (d) {
+							fullYear = d.date
+							year = fullYear.slice(0, 4)
+							{return yearColorMap[year]};
+						})
+						.style("opacity", function (d) {
+							fullYear = d.date
+							year = fullYear.slice(0, 4)
+							if (year == selectedYear) {
+								return 0.50
+
+							} else {
+								return 0
+							}
+						})
+
+						.on("mouseover", mouseover)
+						.on("mousemove", mousemove)
+						.on("mouseleave", mouseleave)
+				});
+
+				// Modified Legend Code from Mike Bostock: http://bl.ocks.org/mbostock/3888852
+				var legends = d3.select("body").append("div")
+					.attr("id", "legends")
+					.append("text").text("Legend");
+
+				var legend = d3.select("#legends").append("svg")
+					.attr("class", "legend")
+					.attr("width", 200)
+					.attr("height", 200)
+					.selectAll("g")
+					.data(color.domain())
+					.enter()
+					.append("g")
+					.attr("transform", function (d, i) { return "translate(0," + i * 20 + ")"; });
+
+				legend.append("rect")
+					.attr("width", 18)
+					.attr("height", 18)
+					.style("fill", color);
+
+				legend.append("text")
+					.data(legendText)
+					.attr("x", 24)
+					.attr("y", 9)
+					.attr("dy", ".35em")
+					.text(function (d) { return d; });
+
+				var legendCirc = d3.select("#legends").append("svg")
+					.attr("class", "legend2")
+					.attr("width", 200)
+					.attr("height", 200)
+					.selectAll("g")
+					.data(circleLegendText)
+					.enter()
+					.append("g")
+					.attr("transform", function (d, i) { return "translate(0," + i * 20 + ")"; });
+
+				legendCirc.append("circle")
+					.attr("r", 5)
+					.attr("cx", 10)
+					.attr("cy", 9)
+					.style("fill", circleColor1);
+
+				legendCirc.append("text")
+					.data(circleLegendText)
+					.attr("x", 24)
+					.attr("y", 9)
+					.attr("dy", ".35em")
+					.text(function (d) { return d; });
+
+			});
+
+		});
+	</script>
+</body>
+
+</html>
